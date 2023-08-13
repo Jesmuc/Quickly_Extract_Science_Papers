@@ -3,3 +3,4 @@ halo
 openai
 pypdf2
 pyyaml
+tk
