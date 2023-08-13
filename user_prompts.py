@@ -152,6 +152,31 @@ def copy_file_to_input_folder():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
+def clear_folders():
+    try:
+        # Delete files in the input folder
+        input_folder = os.path.join(os.path.dirname(__file__), "input")
+        for file in os.listdir(input_folder):
+            file_path = os.path.join(input_folder, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Delete files in the output folder
+        output_folder = os.path.join(os.path.dirname(__file__), "output")
+        for file in os.listdir(output_folder):
+            file_path = os.path.join(output_folder, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        # Delete the report.html file if it exists
+        report_file_path = os.path.join(os.path.dirname(__file__), "report.html")
+        if os.path.isfile(report_file_path):
+            os.remove(report_file_path)
+
+        messagebox.showinfo("Success", "All files deleted.")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
 root = tk.Tk()
 root.title("Extract Papers")
 
@@ -170,5 +195,8 @@ run_generate_reports_button.pack(pady=5)
 
 run_render_report_button = tk.Button(root, text="Save html report", command=lambda: run_script("render_report.py"))
 run_render_report_button.pack(pady=5)
+
+clear_folders_button = tk.Button(root, text="Clear Folders (All Input, Output and Report files)", command=clear_folders)
+clear_folders_button.pack(pady=5)
 
 root.mainloop()
