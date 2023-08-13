@@ -3,6 +3,8 @@ from tkinter import filedialog, messagebox
 import subprocess
 import os
 import shutil
+import threading
+import queue
 
 def open_input_ui():
     input_window = tk.Toplevel(root)
@@ -61,10 +63,68 @@ def open_input_ui():
 
     entry_list = []
 
+def capture_output(pipe, output_list, queue):
+    try:
+        while True:
+            line = pipe.readline()
+            if not line:
+                break
+            output_list.append(line)
+            queue.put(line)
+    except Exception as e:
+        output_list.append(str(e))
+    finally:
+        queue.put(None)
+
 def run_script(script_name):
     try:
         script_path = os.path.join(os.path.dirname(__file__), script_name)
-        subprocess.run(["python", script_path], check=True)
+        process = subprocess.Popen(["python", script_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+        stdout_lines = []
+        stderr_lines = []
+
+        stdout_queue = queue.Queue()
+        stderr_queue = queue.Queue()
+
+        stdout_thread = threading.Thread(target=capture_output, args=(process.stdout, stdout_lines, stdout_queue))
+        stderr_thread = threading.Thread(target=capture_output, args=(process.stderr, stderr_lines, stderr_queue))
+
+        stdout_thread.start()
+        stderr_thread.start()
+
+        # Wait for threads to finish
+        stdout_thread.join()
+        stderr_thread.join()
+
+        # Wait for the process to finish
+        process.wait()
+
+        # Process the remaining output in the queues
+        while True:
+            stdout_line = stdout_queue.get()
+            if stdout_line is None:
+                break
+            stdout_lines.append(stdout_line)
+
+        while True:
+            stderr_line = stderr_queue.get()
+            if stderr_line is None:
+                break
+            stderr_lines.append(stderr_line)
+
+        if process.returncode == 0:
+            # Script completed successfully
+            success_message = f"The script '{script_name}' has finished successfully.\n\nOutput:\n\n{''.join(stdout_lines)}"
+            if stderr_lines:
+                success_message += f"\n\nError Output:\n\n{''.join(stderr_lines)}"
+            messagebox.showinfo("Success", success_message)
+        else:
+            # Script encountered an error
+            error_message = f"The script '{script_name}' encountered an error:\n\n{''.join(stderr_lines)}"
+            if stdout_lines:
+                error_message += f"\n\nOutput:\n\n{''.join(stdout_lines)}"
+            messagebox.showerror("Error", error_message)
     except subprocess.CalledProcessError as e:
         messagebox.showerror("Error", f"An error occurred while running the script: {e}")
     except FileNotFoundError:
@@ -96,7 +156,7 @@ root = tk.Tk()
 root.title("Extract Papers")
 
 # Add a button to copy a file to the input folder
-copy_file_button = tk.Button(root, text="Select Paper File", command=copy_file_to_input_folder)
+copy_file_button = tk.Button(root, text="Select Paper File (Add as many as needed)", command=copy_file_to_input_folder)
 copy_file_button.pack(pady=5)
 
 add_input_button = tk.Button(root, text="Add new prompts for reports (Optional)", command=open_input_ui)
