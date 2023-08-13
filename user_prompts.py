@@ -1,7 +1,8 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 import subprocess
 import os
+import shutil
 
 def open_input_ui():
     input_window = tk.Toplevel(root)
@@ -69,19 +70,45 @@ def run_script(script_name):
     except FileNotFoundError:
         messagebox.showerror("Error", f"Script not found: {script_name}")
 
-root = tk.Tk()
-root.title("Home UI")
+def copy_file_to_input_folder():
+    try:
+        # Prompt the user to select a file
+        file_path = filedialog.askopenfilename()
+        if not file_path:
+            return
 
-add_input_button = tk.Button(root, text="Add new input", command=open_input_ui)
+        # Determine the destination folder (input folder in the root directory)
+        destination_folder = os.path.join(os.path.dirname(__file__), "input")
+
+        # Make sure the destination folder exists
+        os.makedirs(destination_folder, exist_ok=True)
+
+        # Copy the selected file to the destination folder
+        file_name = os.path.basename(file_path)
+        destination_path = os.path.join(destination_folder, file_name)
+        shutil.copy(file_path, destination_path)
+
+        messagebox.showinfo("Success", f"File '{file_name}' copied to the input folder.")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+root = tk.Tk()
+root.title("Extract Papers")
+
+# Add a button to copy a file to the input folder
+copy_file_button = tk.Button(root, text="Select Paper File", command=copy_file_to_input_folder)
+copy_file_button.pack(pady=5)
+
+add_input_button = tk.Button(root, text="Add new prompts for reports (Optional)", command=open_input_ui)
 add_input_button.pack(pady=20)
 
-run_chat_button = tk.Button(root, text="Run chat.py", command=lambda: run_script("chat.py"))
+run_chat_button = tk.Button(root, text="Start chat", command=lambda: run_script("chat.py"))
 run_chat_button.pack(pady=5)
 
-run_generate_reports_button = tk.Button(root, text="Run generate_multiple_reports.py", command=lambda: run_script("generate_multiple_reports.py"))
+run_generate_reports_button = tk.Button(root, text="Create report", command=lambda: run_script("generate_multiple_reports.py"))
 run_generate_reports_button.pack(pady=5)
 
-run_render_report_button = tk.Button(root, text="Run render_report.py", command=lambda: run_script("render_report.py"))
+run_render_report_button = tk.Button(root, text="Save html report", command=lambda: run_script("render_report.py"))
 run_render_report_button.pack(pady=5)
 
 root.mainloop()
