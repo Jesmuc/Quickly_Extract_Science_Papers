@@ -79,8 +79,19 @@ def chat_print(text):
     formatted_text = '\n'.join(formatted_lines)
     print('\n\n\nCHATBOT:\n\n%s' % formatted_text)
 
+def txt_to_array(file_path):
+    try:
+        with open(file_path, 'r') as file:
+            # Read the lines from the file
+            lines = file.readlines()
 
+            # Remove trailing newline characters and any leading/trailing whitespace
+            elements = [line.strip() for line in lines]
 
+            return elements
+    except FileNotFoundError:
+        print("File not found.")
+        return []
 
 if __name__ == '__main__':
     # instantiate chatbot, variables
@@ -88,6 +99,10 @@ if __name__ == '__main__':
 
     # Get list of all PDF files in the input folder
     pdf_files = [f for f in os.listdir('input/') if f.endswith('.pdf')]
+
+    #Get prompts to use
+    file_path = 'input_data.txt'  # Replace with the path to your .txt file
+    prompts2 = txt_to_array(file_path)
 
     for pdf_file in pdf_files:
         # Check if the report already exists in the output folder
@@ -107,7 +122,7 @@ if __name__ == '__main__':
             paper = paper[0:22000]
         ALL_MESSAGES = [{'role':'system', 'content': paper}]
         report = ''
-        for p in prompts:
+        for p in prompts2:
             ALL_MESSAGES.append({'role':'user', 'content': p})
             response, tokens = chatbot(ALL_MESSAGES)
             chat_print(response)
