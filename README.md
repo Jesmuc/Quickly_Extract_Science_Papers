@@ -4,6 +4,7 @@ Scientific papers are coming out TOO DAMN FAST so we need a way to very quickly 
 
 ## Repo Contents
 
+- `ExtractPapersApp` - this file opens the UI helper.
 - `chat.py` - this file is a simple chatbot that will chat with you about the contents of `input.txt` (you can copy/paste anything into this text file). Very useful to quickly discuss papers. 
 - `generate_multiple_reports.py` - this will consume all PDFs in the `input/` folder and generate summaries in the `output/` folder. This is helpful for bulk processing such as for literature reviews. 
 - `render_report.py` - this will render all the reports in `output/` to a an *easier* to read file in `report.html`.
@@ -20,15 +21,14 @@ document for easy viewing.
 1. Clone the repository to your local machine.
 2. Install the required Python packages by running `pip install -r requirements.txt` in your terminal.
 3. Obtain an API key from OpenAI and save it in a file named `key_openai.txt` in the root directory of the repository.
-4. Place the PDF files you want to generate reports from in the `input/` directory.
 
 ## USAGE
 
-1. Run the `generate_multiple_reports.py` script to generate reports from the PDF files in the `input/` directory. The
-generated reports will be saved as text files in the `output/` directory.
-2. Run the `render_report.py` script to render the generated reports as an HTML document. The HTML document will be
-saved as `report.html` in the root directory of the repository.
-3. You can modify the `prompts` in `generate_multiple_reports.py` to focus on any questions you would like to ask. In other words you can automatically ask any set of questions in bulk against any set of papers. This can help you greatly accelerate your literature reviews and surveys.
+1. Open the `ExtractPapersApp` file. 
+2. Click `Select Paper File` to choose the PDF files. Choose as many as needed, these wil be copied to `input/` folder.
+3. Click `Create report` and wait for success message.
+4. Click `Save html report` to render the generated reports as an HTML document. The HTML document will be saved as `report.html` in the root directory of the repository. 
+5. You can modify the `prompts` by clicking on `Add new prompts for reports` to focus on any questions you would like to ask. In other words you can automatically ask any set of questions in bulk against any set of papers. This can help you greatly accelerate your literature reviews and surveys.
 
 ## NOTE
 
